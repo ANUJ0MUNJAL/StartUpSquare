@@ -1,86 +1,65 @@
-import React, { useEffect, useState } from 'react';
-import { PitchDetails } from './PitchDetails';
-import '../css/investor.css';
-import { Error } from './Error';
+import React, { useState, useEffect } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-export const Investor = () => {
-  if (localStorage.role === 'pitcher') {
-    return <Error />;
-  }
-
-  const [investments, setInvestments] = useState([]);
-  const [selectedPitch, setSelectedPitch] = useState(null);
-
-  const fetchInvestments = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/api/pitches/showall', {
-        headers: {
-          Authorization: `Bearer ${localStorage.token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setInvestments(data);
-      } else {
-        console.error('Failed to fetch investments');
-      }
-    } catch (error) {
-      console.error('Error fetching investments', error);
-    }
-  };
+export const FinancialDataBarChart = () => {
+  const [barChartData, setBarChartData] = useState([]);
 
   useEffect(() => {
-    fetchInvestments();
+    // Retrieve financial data from localStorage
+    const financialDataString = localStorage.getItem('financialData');
+    if (!financialDataString) {
+      console.error('Financial data not found in localStorage');
+      return;
+    }
+
+    const financialData = JSON.parse(financialDataString);
+
+    // Calculate EBIT, Depreciation, Amortization, Returns Promised, Gross Margin
+    const ebit = financialData.revenue - financialData.expenses;
+    const depreciation = (financialData.costOfAsset - financialData.salvageValue) / financialData.usefulLife;
+    const amortization = (financialData.costOfAsset - financialData.residualValue) / financialData.usefulLife;
+    const totalReturns = financialData.investment * (1 + financialData.promisedReturn / 100);
+    const returnsPromised = totalReturns * (financialData.equity / 100) * financialData.years;
+    const grossMargin = ((financialData.revenue - financialData.cogs) / financialData.revenue) * 100;
+
+    // Set the bar chart data
+    setBarChartData([
+      { name: 'EBIT', value: ebit, color: '#8884d8' },
+      { name: 'Depreciation', value: depreciation, color: '#82ca9d' },
+      { name: 'Amortization', value: amortization, color: '#ffc658' },
+      { name: 'Returns Promised', value: returnsPromised, color: '#ff7300' },
+      { name: 'Gross Margin', value: grossMargin, color: '#ff4c68' },
+    ]);
   }, []);
 
-  const handleViewPitch = (pitch) => {
-    setSelectedPitch(pitch);
-  };
-
-  const handleCloseDetails = () => {
-    setSelectedPitch(null);
-  };
-
-  const handleContactPitcher = (email) => {
-    // Assuming you want to open the default email client with the email pre-filled
-    console.log(email);
-    window.location.href = `mailto:${email}`;
-  };
-
   return (
-    <div className="investor-container">
-      <div className="investor-header">
-        <h1>My Investments</h1>
+    <div>
+      <h2>Financial Data Bar Chart</h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={barChartData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          {barChartData.map((data, index) => (
+            <Bar key={index} dataKey="value" fill={data.color} name={data.name} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+      <div style={{ marginLeft: 'auto', marginTop: '10px' }}>
+        <table>
+          <tbody>
+            {barChartData.map((data, index) => (
+              <tr key={index}>
+                <td style={{ color: data.color }}>{data.name}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <ul className="investor-list">
-        {investments.map((investment) => (
-          <li className="investor-item" key={investment._id}>
-            <div>
-              <h2 className="investor-title">{investment.title}</h2>
-              <p>{investment.description}</p>
-            </div>
-            <div className="investor-actions">
-              <button
-                className="investor-action"
-                onClick={() => handleViewPitch(investment)}
-              >
-                View Pitch
-              </button>
-              <button
-                className="investor-action"
-                onClick={() => handleContactPitcher(investment.entrepreneurEmail)}
-              >
-                Contact
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      {selectedPitch && (
-        <PitchDetails pitch={selectedPitch} onClose={handleCloseDetails} />
-      )}
     </div>
   );
 };
+
+export default FinancialDataBarChart;
