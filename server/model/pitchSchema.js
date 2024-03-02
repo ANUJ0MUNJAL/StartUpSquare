@@ -6,14 +6,61 @@ const pitchSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
   },
-  title: String,
-  description: String,
+  title: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
   videoUrl: String,
   presentation: String,
   status: String,
   evaluation: {
     ratings: Number,
     feedback: String,
+  },
+  // New financial fields
+  revenue: {
+    type: Number,
+    required: true,
+  },
+  expenses: {
+    type: Number,
+    required: true,
+  },
+  cogs: {
+    type: Number,
+    required: true,
+  },
+  costOfAsset: {
+    type: Number,
+    required: true,
+  },
+  salvageValue: {
+    type: Number,
+    required: true,
+  },
+  usefulLife: {
+    type: Number,
+    required: true,
+  },
+  investment: {
+    type: Number,
+    required: true,
+  },
+  equity: {
+    type: Number,
+    required: true,
+  },
+  promisedReturn: {
+    type: Number,
+    required: true,
+  },
+  years: {
+    type: Number,
+    required: true,
   },
 });
 
