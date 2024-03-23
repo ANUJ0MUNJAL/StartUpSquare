@@ -1,14 +1,16 @@
-// Pitches.jsx
 import React, { useEffect, useState } from 'react';
 import { PitchForm } from '../components/PitchForm';
 import '../css/pitches.css';
 import { Error } from './Error';
 import { useNavigate } from 'react-router-dom';
+import Modal from 'react-modal';
+import FinancialDataPieChart from './FinancialDataBarChart';
 
 export const Pitches = () => {
   const [userToken, setUserToken] = useState(localStorage.token);
   const [pitches, setPitches] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [showGraphModal, setShowGraphModal] = useState(false);
   const navigate = useNavigate();
 
   if (localStorage.role === 'investor') {
@@ -59,6 +61,14 @@ export const Pitches = () => {
     }
   };
 
+  const handleViewGraph = () => {
+    setShowGraphModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowGraphModal(false);
+  };
+  
   const fetchPitches = async () => {
     try {
       const response = await fetch('http://localhost:3000/api/pitches/show', {
@@ -90,6 +100,8 @@ export const Pitches = () => {
           <li className="pitch" key={pitch._id}>
             <h3 className="pitch-title">{pitch.title}</h3>
             <p>{pitch.description}</p>
+            <button className='view-graph-button' onClick={handleViewGraph}>View Graph</button>
+            {/* Add other pitch details and buttons as needed */}
             <button className="btn-delete-pitch" onClick={() => handlePitchDelete(pitch._id)}>Delete</button>
           </li>
         ))}
@@ -116,6 +128,17 @@ export const Pitches = () => {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={showGraphModal}
+        onRequestClose={handleModalClose}
+        contentLabel="Financial Data Pie Chart Modal"
+        className="modal-content"
+        overlayClassName="modal-overlay"
+      >
+        <button onClick={handleModalClose}>&times;</button>
+        <FinancialDataPieChart />
+      </Modal>
     </div>
   );
 };
