@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import '../css/financialData.css';
 export const FinancialDataPage = () => {
-  const [financialData, setFinancialData] = useState({
-    revenue: 0,
-    expenses: 0,
-    cogs: 0,
-    costOfAsset: 0,
-    salvageValue: 0,
-    usefulLife: 0,
-    investment: 0,
-    equity: 0,
-    promisedReturn: 0,
-    years: 0,
-  });
+    const [financialData, setFinancialData] = useState({
+        revenue: '',
+        expenses: '',
+        cogs: '',
+        costOfAsset: '',
+        salvageValue: '',
+        usefulLife: '',
+        investment: '',
+        equity: '',
+        promisedReturn: '',
+        years: '',
+      });
+      
 
   const navigate = useNavigate();
 
@@ -58,6 +59,8 @@ export const FinancialDataPage = () => {
         });
   
         if (response.ok) {
+            localStorage.removeItem('pitchData');
+   
           navigate("/pitches"); // Fetch pitches again after submission
           // Optionally, you can hide the form after submission
           setShowForm(false);
@@ -78,11 +81,8 @@ export const FinancialDataPage = () => {
 
 
     // Optionally, you can clear local storage or perform other cleanup
-    localStorage.removeItem('pitchData');
-    localStorage.removeItem('financialData');
-     
-    // Navigate to another page or perform other actions
-    navigate('/pitches');
+  
+  
   };
   return (
     <div className="financial-data-container">
